@@ -46,11 +46,11 @@ This project is a **Content Management System (CMS)** API built with **Laravel 1
 git clone https://github.com/yourusername/laravel-cms-api.git
 cd laravel-cms-api
 
-composer install
-cp .env.example .env
+- composer install
+- cp .env.example .env
 
-php artisan key:generate
-php artisan migrate --seed
+- php artisan key:generate
+- php artisan migrate --seed
 
 
 ## Databse
