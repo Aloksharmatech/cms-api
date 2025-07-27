@@ -54,11 +54,11 @@ php artisan migrate --seed
 
 
 ## Databse
-DB_DATABASE=your_db
-DB_USERNAME=your_user
-DB_PASSWORD=your_pass
+- **DATABASE_NAME**=your_db
+- **DB_USERNAME**=your_user
+- **DB_PASSWORD**=your_pass
 
-OPENROUTER_API_KEY=your_openrouter_key
+- **OPENROUTER_API_KEY**=your_openrouter_key
 
 
 ## 📬 Postman Collection
