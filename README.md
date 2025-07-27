@@ -6,6 +6,71 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
+# 📰 Laravel CMS API with AI-Powered Slug & Summary
+
+This project is a **Content Management System (CMS)** API built with **Laravel 12**, **MySQL**, and **Sanctum Authentication**. It includes **role-based access** (Admin, Author) and **AI-powered** slug and summary generation using **OpenRouter** and models like `mistral-7b-instruct`.
+
+---
+
+## 🚀 Features
+
+- ✅ User Authentication (Login, Logout, Me)
+- ✅ Role-based Authorization (Admin / Author)
+- ✅ CRUD operations for:
+  - Articles (with filters, pagination)
+  - Categories (Admin-only)
+- ✅ AI Integration for:
+  - Auto-generating Slugs
+  - Auto-summarizing Article Content
+- ✅ Laravel Policies for secure update/delete
+- ✅ Article Filters by:
+  - Category
+  - Status
+  - Published Date Range
+
+---
+
+## 🔧 Technologies Used
+
+- **Laravel 12**
+- **MySQL**
+- **Sanctum** for API authentication
+- **Spatie Laravel-Permission** for roles
+- **OpenRouter API** for AI integration
+
+---
+
+## 📁 Installation
+
+```bash
+git clone https://github.com/yourusername/laravel-cms-api.git
+cd laravel-cms-api
+
+composer install
+cp .env.example .env
+
+php artisan key:generate
+php artisan migrate --seed
+
+
+
+DB_DATABASE=your_db
+DB_USERNAME=your_user
+DB_PASSWORD=your_pass
+
+OPENROUTER_API_KEY=your_openrouter_key
+
+## 📬 Postman Collection
+
+You can test all the CMS API endpoints using this Postman collection:
+
+👉 [Laravel CMS API Postman Collection](https://web.postman.co/workspace/My-Workspace~4b7f783b-3f58-46a7-8b3c-00ab00df9140/collection/43050549-30e8de57-7d1b-4c41-a16f-1735dc4583e2?action=share&source=copy-link&creator=43050549)
+
+To get started:
+- Click the link above
+- Fork or import into your Postman workspace
+- Set `{{base_url}}` to `http://localhost:8000/api`
+
 
 ## About Laravel
 
