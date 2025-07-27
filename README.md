@@ -44,7 +44,7 @@ This project is a **Content Management System (CMS)** API built with **Laravel 1
 
 
 git clone https://github.com/yourusername/laravel-cms-api.git
-cd laravel-cms-api
+- cd laravel-cms-api
 
 - composer install
 - cp .env.example .env
