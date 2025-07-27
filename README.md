@@ -42,7 +42,7 @@ This project is a **Content Management System (CMS)** API built with **Laravel 1
 
 ## 📁 Installation
 
-```bash
+
 git clone https://github.com/yourusername/laravel-cms-api.git
 cd laravel-cms-api
 
@@ -53,12 +53,13 @@ php artisan key:generate
 php artisan migrate --seed
 
 
-
+## Databse
 DB_DATABASE=your_db
 DB_USERNAME=your_user
 DB_PASSWORD=your_pass
 
 OPENROUTER_API_KEY=your_openrouter_key
+
 
 ## 📬 Postman Collection
 
