@@ -12,8 +12,6 @@ use App\Jobs\GenerateSummaryJob;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Bus\Batch;
-use Illuminate\Support\Facades\Bus;
 use Throwable;
 
 class ArticleController extends Controller
@@ -21,24 +19,25 @@ class ArticleController extends Controller
     use AuthorizesRequests;
 
 
-
     public function index(Request $request)
     {
         $query = Article::query()->with('categories', 'author');
 
-   
+        // Only apply author filter if user is NOT an admin
+        if (!Auth::user()->hasRole('admin')) {
+            $query->where('user_id', Auth::id());
+        }
+
         if ($request->has('category_id')) {
             $query->whereHas('categories', function ($q) use ($request) {
                 $q->where('id', $request->category_id);
             });
         }
 
-      
         if ($request->has('status')) {
             $query->where('status', $request->status);
         }
 
-      
         if ($request->has('from_date') && $request->has('to_date')) {
             $query->whereBetween('published_at', [
                 $request->from_date,
@@ -48,7 +47,6 @@ class ArticleController extends Controller
 
         return $query->paginate(10);
     }
-
 
     public function store(Request $request)
     {
@@ -63,37 +61,23 @@ class ArticleController extends Controller
 
         $article = new Article();
         $article->title = $validated['title'];
-        $article->slug = Str::slug($validated['title']); 
         $article->content = $validated['content'];
         $article->status = $validated['status'];
         $article->published_at = $validated['published_at'];
         $article->user_id = Auth::id();
-
-
-        $response = Http::withToken(env('OPENROUTER_API_KEY'))->post('https://openrouter.ai/api/v1/chat/completions', [
-                       'model' => 'mistralai/mistral-7b-instruct',
-                       'messages' => [
-                           [
-                               'role' => 'user',
-                               'content' => "Summarize the following article content in 2-3 concise sentences:\n\n" . $validated['content'],
-                           ],
-                       ],
-                       'max_tokens' => 100,
-                   ]);
-
-
-        $summary = $response['choices'][0]['message']['content'] ?? null;
-        $article->summary = trim($summary ?? '');
-
+        $article->slug = Str::slug($validated['title']);
+        $article->summary = '';
         $article->save();
 
         $article->categories()->sync($validated['category_ids']);
 
-   
-        dispatch(new GenerateSlugJob($article->id));
+        (new GenerateSlugJob($article->id, true))->handle();
+        (new GenerateSummaryJob($article->id))->handle();
 
+        $article->refresh();
         return response()->json($article->load('categories'), 201);
     }
+
 
     public function show(Article $article)
     {
@@ -141,7 +125,7 @@ class ArticleController extends Controller
             Log::error('Error in update(): ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
             ]);
-            return response()->json(['error' => 'Internal server error'], 500);
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
     }
 
@@ -149,8 +133,14 @@ class ArticleController extends Controller
 
     public function destroy(Article $article)
     {
-        $this->authorize('delete', $article);
+        $user = Auth::user();
+
+        if ($user->id !== $article->user_id && !$user->hasRole('admin')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
         $article->delete();
-        return response()->json(['message' => 'Article deleted']);
+
+        return response()->json(['message' => 'Article deleted successfully']);
     }
 }

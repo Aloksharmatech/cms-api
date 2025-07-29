@@ -8,13 +8,12 @@ use Illuminate\Auth\Access\Response;
 
 class ArticlePolicy
 {
-  
     public function viewAny(User $user): bool
     {
         return false;
     }
 
-   
+
     public function view(User $user, Article $article): bool
     {
         return false;
@@ -26,34 +25,25 @@ class ArticlePolicy
         return false;
     }
 
-    
+
     public function update(User $user, Article $article): bool
     {
-        if ($user->hasRole('admin')) {
-            return true;
-        }
 
-        return $user->id === $article->user_id;
+        return $user->id === $article->user_id || $user->hasRole('admin');
     }
 
     public function delete(User $user, Article $article): bool
     {
-       
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
-     
-        return $user->id === $article->user_id;
+        return $user->id === $article->user_id || $user->hasRole('admin');
     }
 
-    
+
     public function restore(User $user, Article $article): bool
     {
         return false;
     }
 
-    
+
     public function forceDelete(User $user, Article $article): bool
     {
         return false;

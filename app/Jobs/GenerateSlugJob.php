@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs;
 
 use App\Models\Article;
@@ -11,8 +12,6 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
-use Illuminate\Bus\Batchable;
-
 
 class GenerateSlugJob implements ShouldQueue
 {
@@ -20,10 +19,10 @@ class GenerateSlugJob implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use Batchable;
+   
 
-    protected $articleId;
-    protected $force;
+    protected int $articleId;
+    protected bool $force;
 
     public function __construct(int $articleId, bool $force = false)
     {
@@ -36,7 +35,10 @@ class GenerateSlugJob implements ShouldQueue
         $article = Article::find($this->articleId);
 
         if (!$article || (!$this->force && $article->slug)) {
-            Log::info('Skipping slug generation', ['articleId' => $this->articleId]);
+            Log::info('Skipping slug generation', [
+                'articleId' => $this->articleId,
+                'reason' => !$article ? 'Article not found' : 'Slug already exists'
+            ]);
             return;
         }
 
@@ -56,6 +58,7 @@ class GenerateSlugJob implements ShouldQueue
 
         if (!$response->successful()) {
             Log::warning('OpenRouter API call failed for slug generation', [
+                'articleId' => $this->articleId,
                 'response' => $response->json(),
             ]);
             return;
@@ -63,10 +66,15 @@ class GenerateSlugJob implements ShouldQueue
 
         $slugText = data_get($response->json(), 'choices.0.message.content', $article->title);
 
+        $cleanSlug = Str::slug(Str::limit($slugText, 60, '')); // Limit slug length to 60 chars
+
         $article->update([
-            'slug' => Str::slug($slugText),
+            'slug' => $cleanSlug,
         ]);
 
-        Log::info('Slug generated and updated', ['slug' => $article->slug]);
+        Log::info('Slug generated and updated', [
+            'articleId' => $this->articleId,
+            'slug' => $cleanSlug
+        ]);
     }
 }
